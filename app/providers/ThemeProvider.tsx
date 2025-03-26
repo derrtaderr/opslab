@@ -26,6 +26,7 @@ export function ThemeProvider({
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
+    
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {

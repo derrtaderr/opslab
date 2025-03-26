@@ -1,116 +1,91 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { MIRO_CONFIG } from '../config/miro';
-import { useSession } from 'next-auth/react';
+import MiroService from '../../lib/miro/miroService';
 
 interface MiroBoardProps {
-  className?: string;
-  teamId?: string;
   boardId?: string;
+  className?: string;
 }
 
-export function MiroBoard({ className = '', teamId, boardId: propBoardId }: MiroBoardProps) {
+// Miro SDK window type
+declare global {
+  interface Window {
+    miro?: {
+      board: {
+        ui: {
+          on: (event: string, callback: (event: any) => void) => void;
+        };
+      };
+    };
+  }
+}
+
+export default function MiroBoard({ boardId, className = '' }: MiroBoardProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const { data: session, status } = useSession();
-  const [boardId, setBoardId] = useState<string | null>(propBoardId || null);
-  const [loading, setLoading] = useState(!propBoardId);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch the team's board ID or template board if no team/board is provided
+  // Use template board ID from environment if none provided
+  const activeBoardId = boardId || process.env.NEXT_PUBLIC_MIRO_BOARD_ID || 'uXjVLbRQA1A';
+  
+  // Embed URL for the Miro board
+  const embedUrl = `https://miro.com/app/live-embed/${activeBoardId}/?embedAutoplay=true`;
+
   useEffect(() => {
-    async function fetchBoardId() {
-      if (propBoardId) {
-        setBoardId(propBoardId);
+    // Simple delay to simulate API connection
+    const timer = setTimeout(() => {
+      if (!activeBoardId) {
+        setError('No board ID provided');
         setLoading(false);
         return;
       }
 
-      if (status === 'loading') return;
-      
-      // If no authenticated user, use the template board for preview
-      if (status !== 'authenticated') {
-        setBoardId(MIRO_CONFIG.BOARD_ID as string);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // If teamId is provided, get that specific team's board
-        let url = teamId 
-          ? `/api/teams/${teamId}/board` 
-          : '/api/boards/user-board';
-
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-          throw new Error(`Failed to load board: ${response.statusText}`);
+      // Initialize Miro board
+      const initMiroBoard = async () => {
+        try {
+          // This would verify template board exists in a real implementation
+          setLoading(false);
+        } catch (error) {
+          console.error('Error initializing Miro board:', error);
+          setError('Failed to connect to Miro board');
+          setLoading(false);
         }
-        
-        const data = await response.json();
-        setBoardId(data.boardId);
-      } catch (err) {
-        console.error('Error fetching board:', err);
-        setError('Failed to load your board. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    }
+      };
 
-    fetchBoardId();
-  }, [status, teamId, propBoardId]);
+      initMiroBoard();
+    }, 1000);
 
-  // Initialize Miro SDK
-  useEffect(() => {
-    if (!boardId) return;
-
-    const initMiroBoard = async () => {
-      try {
-        // Load Miro Web SDK
-        const script = document.createElement('script');
-        script.src = 'https://miro.com/app/static/sdk/v2/miro.js';
-        script.async = true;
-        script.onload = () => {
-          // Initialize Miro board after SDK is loaded
-          window.miro?.board.ui.on('icon:click', (event: any) => {
-            console.log('Icon clicked:', event);
-          });
-        };
-        document.body.appendChild(script);
-
-        return () => {
-          document.body.removeChild(script);
-        };
-      } catch (error) {
-        console.error('Error initializing Miro board:', error);
-        setError('Failed to initialize the Miro board.');
-      }
+    return () => {
+      clearTimeout(timer);
     };
+  }, [activeBoardId]);
 
-    initMiroBoard();
-  }, [boardId]);
-
-  // Show loading state
   if (loading) {
     return (
-      <div className={`flex items-center justify-center w-full h-full rounded-lg border border-dark-border bg-dark ${className}`}>
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-dark-accent mx-auto mb-4"></div>
-          <p>Loading your workspace...</p>
+      <div className="flex items-center justify-center w-full h-full bg-dark">
+        <div className="text-center flex flex-col items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
+          <p className="text-gray-300 text-sm font-medium">Loading your Miro board...</p>
         </div>
       </div>
     );
   }
 
-  // Show error state
   if (error) {
     return (
-      <div className={`flex items-center justify-center w-full h-full rounded-lg border border-dark-border bg-dark ${className}`}>
-        <div className="text-center p-4 max-w-md">
-          <p className="text-red-500 mb-2">Error: {error}</p>
+      <div className="flex items-center justify-center w-full h-full bg-dark">
+        <div className="text-center p-8 max-w-sm bg-dark-surface border border-dark-border rounded-lg shadow-lg">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-error/10 flex items-center justify-center">
+            <svg className="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold mb-3 text-white">Connection Error</h3>
+          <p className="text-gray-300 mb-5">{error}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-dark-accent text-white rounded-md hover:bg-opacity-90"
+            className="btn-primary w-full"
           >
             Try Again
           </button>
@@ -118,28 +93,18 @@ export function MiroBoard({ className = '', teamId, boardId: propBoardId }: Miro
       </div>
     );
   }
-
-  // Show empty state if no board ID
-  if (!boardId) {
-    return (
-      <div className={`flex items-center justify-center w-full h-full rounded-lg border border-dark-border bg-dark ${className}`}>
-        <p className="text-center text-dark-text">No board is available</p>
-      </div>
-    );
-  }
-
-  // Render the board
-  const boardUrl = `${MIRO_CONFIG.EMBED_URL}/${boardId}?embedAutoplay=true&frameId=miro-board`;
-
+  
   return (
-    <iframe
-      ref={iframeRef}
-      className={`w-full h-full rounded-lg ${className}`}
-      src={boardUrl}
-      allow="fullscreen; clipboard-read; clipboard-write"
-      frameBorder="0"
-      scrolling="no"
-      allowFullScreen
-    />
+    <div className={`w-full h-full ${className}`}>
+      <iframe
+        ref={iframeRef}
+        className="w-full h-full"
+        src={embedUrl}
+        frameBorder="0"
+        scrolling="no"
+        allow="fullscreen; clipboard-read; clipboard-write"
+        allowFullScreen
+      />
+    </div>
   );
 } 

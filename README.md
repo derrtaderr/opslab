@@ -1,136 +1,78 @@
 # AI Ops Lab
 
-AI Ops Lab is a collaborative platform for operations teams to discover high-impact AI opportunities and estimate ROI. The platform integrates with Miro boards to provide real-time collaboration for teams working through the AI discovery process.
+AI Ops Lab is a platform designed to help organizations identify and implement AI automation opportunities in their operations. The application combines collaborative whiteboarding through Miro integration with AI-powered guidance and ROI calculation.
 
-## Key Features
+## Features
 
-- 🤝 **Team Collaboration**: Create teams and invite members to work together on shared Miro boards
-- 🎯 **Process Mapping**: Visualize your current operations and identify bottlenecks
-- 💡 **AI Opportunity Discovery**: Identify where AI can make the most impact
-- 💰 **ROI Calculator**: Estimate potential savings and business impact
-- 🤖 **AI Assistant**: Get contextual help and guidance throughout the process
-- 📊 **PDF Export**: Generate comprehensive summary reports with implementation plans
+- **Miro Integration**: Collaborate on process mapping, pain point identification, and solution planning using Miro's whiteboarding capabilities.
+- **AI Assistant**: Get guidance through the AI automation discovery and planning process with a conversational AI interface.
+- **ROI Calculator**: Estimate the potential return on investment for AI automation opportunities with a comprehensive calculator.
+- **Template Library**: Access pre-designed templates for common operational mapping and AI planning activities.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS
-- **State Management**: Zustand, React Query
-- **Authentication**: NextAuth.js
-- **Database**: Supabase
-- **Integrations**: Miro REST API, OpenAI API
-- **Caching**: Redis
-
-## Prerequisites
-
-- Node.js 18.x or later
-- npm or yarn
-- A Miro developer account
-- A Supabase account
-- An OpenAI API key (for AI assistant feature)
+- **Frontend**: Next.js 14 with App Router, React 18, TypeScript
+- **Styling**: Tailwind CSS
+- **Authentication**: Clerk Auth
+- **APIs**: Miro API for whiteboarding, OpenAI API for AI assistance
+- **State Management**: React hooks and context
 
 ## Getting Started
 
-### Setup Miro Integration
+### Prerequisites
 
-1. Create a new Miro app at https://miro.com/app/settings/user-profile/apps
-2. Set the following:
-   - App URL: http://localhost:3000
-   - Redirect URI: http://localhost:3000/api/auth/callback/miro
-   - Request permissions: boards:read, boards:write, boards:share
-3. Note your Client ID and Client Secret
-4. Create a board to serve as your template
-5. Copy the board ID from the URL: https://miro.com/app/board/[BOARD_ID]/
+- Node.js 18 or newer
+- Miro Developer Account
+- Clerk Account
+- OpenAI API Key (for production)
 
-### Setup Supabase
+### Installation
 
-1. Create a new Supabase project
-2. Note your Supabase URL, anon key, and service role key
-3. Use the provided SQL migrations in the `supabase/migrations` folder
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/ai-ops-lab.git
+   cd ai-ops-lab
+   ```
 
-### Local Setup
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-1. Clone the repository
-```bash
-git clone https://github.com/derrtaderr/opslab.git
-cd opslab
-```
+3. Create a `.env.local` file with the required environment variables:
+   ```
+   # Clerk Auth Keys
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+   CLERK_SECRET_KEY=your_clerk_secret_key
 
-2. Install dependencies
-```bash
-npm install
-```
+   # Miro API Configuration
+   NEXT_PUBLIC_MIRO_APP_ID=your_miro_app_id
+   MIRO_CLIENT_SECRET=your_miro_client_secret
+   MIRO_TEMPLATE_BOARD_ID=your_template_board_id
 
-3. Copy the example environment file
-```bash
-cp .env.example .env.local
-```
+   # API URLs
+   NEXT_PUBLIC_MIRO_API_URL=https://api.miro.com
 
-4. Fill in your environment variables in `.env.local`:
-```
-NEXT_PUBLIC_MIRO_APP_ID=your_miro_client_id
-MIRO_CLIENT_SECRET=your_miro_client_secret
-NEXT_PUBLIC_MIRO_BOARD_ID=your_template_board_id
+   # OpenAI Configuration (for production)
+   OPENAI_API_KEY=your_openai_api_key
+   ```
 
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your_generated_secret
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-```
+5. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-5. Run database setup
-```bash
-node supabase/setup.js
-```
+## Phase 1 Implementation
 
-6. Start the development server
-```bash
-npm run dev
-```
+The current implementation includes:
 
-7. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Team Collaboration Features
-
-- **Team Creation**: Create a new team workspace with its own Miro board (duplicated from template)
-- **Invite System**: Generate and share unique invite codes for team members
-- **Shared Workspace**: All team members collaborate on the same Miro board
-- **Role Management**: Set roles for team members (owner, member)
-
-## Project Structure
-
-```
-app/
-├── api/                    # API routes
-│   ├── auth/               # Authentication endpoints
-│   ├── boards/             # Board management endpoints
-│   └── teams/              # Team management endpoints
-├── components/             # React components
-│   ├── InviteModal.tsx     # Modal for sharing invite codes
-│   ├── MiroBoard.tsx       # Miro board embedding component
-│   └── TeamModal.tsx       # Modal for team creation/joining
-├── config/                 # Configuration files
-├── lib/                    # Shared utilities
-│   ├── services/           # Business logic services
-│   ├── utils/              # Helper functions
-│   ├── miro.ts             # Miro API utilities
-│   └── supabase.ts         # Supabase client
-├── providers/              # React context providers
-└── types/                  # TypeScript type definitions
-
-cursor-rules/               # Project documentation
-supabase/                   # Supabase setup and migrations
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Authentication**: User login/signup with Clerk
+2. **Miro Board Integration**: Display and interaction with Miro boards
+3. **AI Chat Interface**: Simple AI guidance for the ops improvement process
+4. **ROI Calculator**: Tool to calculate potential savings from AI implementation
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+[MIT](LICENSE)

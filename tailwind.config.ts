@@ -1,41 +1,57 @@
 import type { Config } from "tailwindcss";
 
+// Debug print of config
+console.log("Loading Tailwind config");
+
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: 'class',
+  darkMode: 'class', // Debug - confirm dark mode is class-based
   theme: {
     extend: {
       colors: {
-        // Dark theme colors
-        dark: {
-          DEFAULT: '#1A1B1E',
-          'surface': '#25262B',
-          'hover': '#2C2E33',
-          'border': '#373A40',
-          'text': '#C1C2C5',
-          'accent': '#1971C2',
+        dark: "var(--dark)",
+        "dark-surface": "var(--dark-surface)",
+        "dark-surface-dark": "var(--dark-surface-dark)",
+        "dark-border": "var(--dark-border)",
+        "text-secondary": "var(--text-secondary)",
+        primary: "var(--primary)",
+        "primary-dark": "var(--primary-dark)",
+        error: "var(--error)",
+        secondary: "#ff9190",
+        text: {
+          DEFAULT: "#f0f4fc",
+          secondary: "#a0aec0",
         },
-        // Light theme colors (for future use)
-        light: {
-          DEFAULT: '#FFFFFF',
-          'surface': '#F8F9FA',
-          'hover': '#F1F3F5',
-          'border': '#DDE0E4',
-          'text': '#1A1B1E',
-          'accent': '#228BE6',
-        }
+        success: "#10b981",
+        warning: "#f59e0b",
+      },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        DEFAULT: "var(--shadow)",
+        lg: "var(--shadow-lg)",
+      },
+      borderRadius: {
+        'xl': '0.75rem',
+        '2xl': '1rem',
+      }
     },
   },
   plugins: [],
 };
+
+// Debug print entire config
+console.log("Tailwind darkMode setting:", config.darkMode);
+
 export default config; 

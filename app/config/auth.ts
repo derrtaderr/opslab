@@ -1,7 +1,7 @@
 export const AUTH_CONFIG = {
   miro: {
     clientId: process.env.NEXT_PUBLIC_MIRO_APP_ID,
-    redirectUri: process.env.NEXTAUTH_URL ? `${process.env.NEXTAUTH_URL}/api/auth/callback/miro` : 'http://localhost:3001/api/auth/callback/miro',
+    redirectUri: process.env.NEXTAUTH_URL ? `${process.env.NEXTAUTH_URL}/api/auth/callback/miro` : 'http://localhost:3000/api/auth/callback/miro',
     oauthUrl: 'https://miro.com/oauth/authorize',
     scopes: [
       'boards:read',

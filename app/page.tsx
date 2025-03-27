@@ -1,11 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MiroBoard from './components/MiroBoard';
 import ToolSelector from './components/ToolSelector';
 
 export default function Home() {
   const [boardId, setBoardId] = useState<string | undefined>(undefined);
+  const [userId, setUserId] = useState<string>(`user_${Math.floor(Math.random() * 1000)}`);
+
+  // Function to handle board creation
+  const handleBoardCreated = (newBoardId: string) => {
+    console.log(`Board created: ${newBoardId}`);
+    setBoardId(newBoardId);
+  };
 
   // Function to create a sticky note on the board
   const handleCreateSticky = (content: string) => {
@@ -20,8 +27,12 @@ export default function Home() {
       </header>
       
       <main className="main-content">
-        <div className="board-container">
-          <MiroBoard />
+        <div className="board-container" style={{ position: 'relative' }}>
+          <MiroBoard 
+            boardId={boardId}
+            userId={userId}
+            onBoardCreated={handleBoardCreated}
+          />
         </div>
         
         <div className="sidebar">

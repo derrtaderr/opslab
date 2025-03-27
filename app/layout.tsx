@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,8 +17,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
+      </head>
       <body className={inter.className}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

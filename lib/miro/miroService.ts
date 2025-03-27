@@ -37,7 +37,7 @@ const setAuthToken = (token: string) => {
 const getTemplateBoard = async () => {
   try {
     const response = await miroClient.get(`/boards/${MIRO_TEMPLATE_BOARD_ID}`);
-    return response.data;
+    return response.data as any;
   } catch (error) {
     console.error('Error retrieving template board:', error);
     throw error;
@@ -49,24 +49,25 @@ const getTemplateBoard = async () => {
  */
 const createBoardFromTemplate = async (name: string, description?: string) => {
   try {
-    // First, get the template board to verify it exists
+    // First, verify the template board exists
     await getTemplateBoard();
 
     // Create a new board
-    const response = await miroClient.post('/boards', {
+    const newBoardResponse = await miroClient.post('/boards', {
       name: name || 'AI Ops Lab Session',
       description: description || 'Created from AI Ops Lab template',
       team_id: null, // Will use the user's default team
     });
 
-    const newBoardId = response.data.id;
+    const newBoardData = newBoardResponse.data as any;
+    const newBoardId = newBoardData.id;
+
+    console.log(`Created new board with ID: ${newBoardId}`);
 
     // Copy content from template board to new board
-    // Note: This is a simplified version, actual implementation may require
-    // copying items individually depending on Miro API limitations
     await copyBoardContent(MIRO_TEMPLATE_BOARD_ID as string, newBoardId);
 
-    return response.data;
+    return newBoardData;
   } catch (error) {
     console.error('Error creating board from template:', error);
     throw error;
@@ -78,11 +79,13 @@ const createBoardFromTemplate = async (name: string, description?: string) => {
  */
 const copyBoardContent = async (sourceBoardId: string, targetBoardId: string) => {
   try {
+    console.log(`Copying content from board ${sourceBoardId} to board ${targetBoardId}`);
+    
     // Get items from source board
     const items = await getBoardItems(sourceBoardId);
+    console.log(`Found ${items.length} items to copy`);
 
     // Create each item in the target board
-    // Note: This is simplified, would need batch operations for performance
     for (const item of items) {
       // Remove id and other non-transferable properties
       const { id, createdAt, modifiedAt, createdBy, modifiedBy, ...itemData } = item;
@@ -104,7 +107,7 @@ const copyBoardContent = async (sourceBoardId: string, targetBoardId: string) =>
 const getBoardItems = async (boardId: string) => {
   try {
     const response = await miroClient.get(`/boards/${boardId}/items`);
-    return response.data.items || [];
+    return ((response.data as any).items || []) as any[];
   } catch (error) {
     console.error('Error getting board items:', error);
     throw error;
@@ -117,7 +120,7 @@ const getBoardItems = async (boardId: string) => {
 const createBoardItem = async (boardId: string, itemData: any) => {
   try {
     const response = await miroClient.post(`/boards/${boardId}/items`, itemData);
-    return response.data;
+    return response.data as any;
   } catch (error) {
     console.error('Error creating board item:', error);
     throw error;
@@ -138,7 +141,7 @@ const createStickyNote = async (boardId: string, content: string, position = { x
         }
       }
     });
-    return response.data;
+    return response.data as any;
   } catch (error) {
     console.error('Error creating sticky note:', error);
     throw error;
@@ -151,6 +154,7 @@ const MiroService = {
   createBoardFromTemplate,
   createStickyNote,
   getBoardItems,
+  copyBoardContent
 };
 
 export default MiroService; 

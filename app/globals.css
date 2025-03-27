@@ -109,6 +109,7 @@
     padding: 12px;
     gap: 12px;
     height: calc(100vh - 60px);
+    min-height: 700px;
   }
   
   /* Board Container */
@@ -124,6 +125,8 @@
     border-radius: 8px;
     border: 1px solid var(--dark-border);
     height: 100%;
+    min-height: 600px;
+    width: 100%;
   }
   
   .board {
